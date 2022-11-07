@@ -64,31 +64,51 @@ class UserController extends AbstractController
         ]);
     }
 
+       /**
+     * This controller allow us to edit user's password
+     *
+     * @param User $user
+     * @param Request $request
+     * @param UserPasswordHasherInterface $hasher
+     * @param EntityManagerInterface $manager
+     * @return Response
+     */
     #[Route('/utilisateur/edition-mot-de-passe/{id}', 'user.edit.password', methods: ['GET', 'POST'])]
     public function editPassword(User $user, Request $request, UserPasswordHasherInterface $hasher, EntityManagerInterface $manager): Response
     {
+        if(!$this->getUser()){
+            
+            return $this->redirectToRoute('security.login');
+        }
+        if($this->getUser() !== $user){
+            
+            return $this->redirectToRoute('recipe.index');
+        }
         $form = $this->createForm(UserPasswordType::class);
 
         $form->handleRequest($request);
         if($form->isSubmitted() && $form->isValid()){
             if($hasher->isPasswordValid($user, $form->getData()['plainPassword']))
             {
-
-                $user->setPassword(
+                $user->setUpdatedAt(new \DateTimeImmutable());
+                $user->setPlainPassword(
+                    $form->getData()['newPassword']
+                );
+                /* $user->setPassword(
                     $hasher->hashPassword(
                         $user,
                         $form->getData()['newPassword']
-                    )
-                );
+                    ) 
+                );*/
                 //$user->setPlainpassword($form->getData()['newPassword']);
-
-                $manager->persist($user);
-                $manager->flush();
 
                 $this->addFlash(
                     'success',
                     'Le mot de passe a été modifié.'
                 );
+
+                $manager->persist($user);
+                $manager->flush();
 
                 return $this->redirectToRoute('recipe.index');
             } else {
