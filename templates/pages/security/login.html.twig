@@ -6,6 +6,12 @@
     <div class="container">
     <h1 class="mt-4">Formulaire de connexion</h1>
 
+     {% for message in app.flashes('success') %}
+      <div class="alert alert-success mt-4">
+          {{ message }}
+      </div>
+    {% endfor %}
+
     {% if error %}
     <div class="alert alert-danger">
     {{ error.messageKey|trans(error.messageData, 'security') }}
@@ -13,10 +19,16 @@
     
     {% endif %}
 
+    {% for message in app.flashes('success') %}
+      <div class="alert alert-success mt-4">
+          {{ message }}
+      </div>
+    {% endfor %}
+
     <form action="{{ path('security.login') }}" method="post">
         <div class="form-group">
             <label for="username" class="form-label mt-4">Adresse email</label>
-            <input type="email" class="form-control" id="username" name="_username" placeholder="exemple@mesrecettes.fr" value="{{ last_username }}>
+            <input type="email" class="form-control" id="username" name="_username" placeholder="exemple@mesrecettes.fr" value="{{ last_username }}">
             
         </div>
         <div class="form-group">
